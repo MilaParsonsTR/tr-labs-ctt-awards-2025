@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thomson Reuters Labs - Year End Awards 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes ping {
+            75%, 100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        .animate-ping {
+            animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        .confetti {
+            position: absolute;
+            animation: ping 1s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-orange-50 min-h-screen">
+    <div id="app"></div>
+
+    <script>
+        const teamMembers = [
+            'David', 'Mila', 'Mohit', 'Aaryan', 'Marcos', 'Arvind', 
+            'Gianfranco', 'Keshav', 'Pratyaksha', 'Palvika', 'Vijay', 
+            'Rutuja', 'Pinaki', 'Krishna', 'Gouri', 'Ayesha', 'Thupten'
+        ];
+
+        const awards = [
+            { category: 'Communication Style Awards', name: 'The Emoji Enthusiast', description: 'For most expressive use of emojis in Teams' },
+            { category: 'Communication Style Awards', name: 'The GIF Master', description: 'For always having the perfect GIF response' },
+            { category: 'Communication Style Awards', name: 'The Eloquent Rambler', description: 'For the longest, most detailed Teams messages' },
+            { category: 'Communication Style Awards', name: 'The One-Word Wonder', description: 'For conveying everything with minimal words ("Yep." "Done." "Nice.")' },
+            { category: 'Meeting Personality Awards', name: 'The Background Celebrity', description: 'For the most interesting Zoom background (pets, kids, décor)' },
+            { category: 'Meeting Personality Awards', name: 'The Multitasker', description: 'For somehow attending three meetings at once' },
+            { category: 'Meeting Personality Awards', name: 'The Coffee Curator', description: 'For the most impressive mug collection on camera' },
+            { category: 'Work Style Quirks Awards', name: 'The Night Owl', description: 'For Slack messages sent at mysterious hours' },
+            { category: 'Work Style Quirks Awards', name: 'The Calendar Tetris Champion', description: 'For the most colorful/packed calendar' },
+            { category: 'Personality & Humor Awards', name: 'The Pet Director', description: 'For pets that steal the show during calls' },
+            { category: 'Personality & Humor Awards', name: 'The Meme Lord/Lady', description: 'For sharing the most relevant internet humor' },
+            { category: 'Endearing Habits Awards', name: 'The Over-Preparer', description: 'For bringing contingency plans A through Z' },
+            { category: 'Endearing Habits Awards', name: 'The Eternal Optimist', description: 'For "This should be quick..." followed by a 3-hour debug session' },
+            { category: 'Endearing Habits Awards', name: 'The Weather Reporter', description: 'For always mentioning their local weather on calls' },
+            { category: 'Endearing Habits Awards', name: 'The Technical Tangent Explorer', description: 'For fascinating digressions that taught us something' },
+            { category: 'Endearing Habits Awards', name: 'The "One More Thing..."', description: 'For always having something to add at the end' },
+            { category: 'Technical & Innovation Awards', name: 'The Breakthrough Moment', description: 'For that "aha!" solution that moved everything forward' },
+            { category: 'Technical & Innovation Awards', name: 'The Debug Whisperer', description: 'For calmly solving the trickiest technical challenges' },
+            { category: 'Technical & Innovation Awards', name: 'The Future Visionary', description: 'For always thinking three steps ahead' },
+            { category: 'Technical & Innovation Awards', name: 'The Elegant Solution Award', description: 'For finding the simplest path through complexity' },
+            { category: 'Technical & Innovation Awards', name: 'The "How Did You Even Think of That?!"', description: 'For the most creative approach' },
+            { category: 'Collaboration & Communication Awards', name: 'The Bridge Builder', description: 'For connecting people and ideas across the team' },
+            { category: 'Collaboration & Communication Awards', name: 'The Question Master', description: 'For asking the questions that sparked the best discussions' },
+            { category: 'Collaboration & Communication Awards', name: 'The Knowledge Sharer', description: 'For always being willing to explain and teach' },
+            { category: 'Collaboration & Communication Awards', name: 'The Meeting MVP', description: 'For consistently moving discussions forward productively' },
+            { category: 'Problem-Solving & Resilience Awards', name: 'The Calm in the Storm', description: 'For staying cool under pressure' },
+            { category: 'Problem-Solving & Resilience Awards', name: 'The Pivot Pro', description: 'For adapting brilliantly when plans changed' },
+            { category: 'Problem-Solving & Resilience Awards', name: 'The "We Can Do This"', description: 'For infectious optimism when challenges arose' },
+            { category: 'Problem-Solving & Resilience Awards', name: 'The Plot Twist Handler', description: 'For rolling with unexpected developments' },
+            { category: 'Team Spirit Awards', name: 'The Energy Booster', description: 'For bringing positive energy to every interaction' },
+            { category: 'Team Spirit Awards', name: 'The Behind-the-Scenes Hero', description: 'For all the crucial work that doesn\'t always get spotlight' },
+            { category: 'Team Spirit Awards', name: 'The Celebration Starter', description: 'For recognizing others\' wins' },
+            { category: 'Team Spirit Awards', name: 'The Time Zone Warrior', description: 'For joining meetings at challenging hours' },
+            { category: 'Team Spirit Awards', name: 'The Culture Keeper', description: 'For making our remote team feel connected' },
+            { category: 'Innovation & Impact Awards', name: 'The Game Changer', description: 'For work that significantly elevated the project' },
+            { category: 'Innovation & Impact Awards', name: 'The Connector of Dots', description: 'For synthesizing insights from different areas' },
+            { category: 'Innovation & Impact Awards', name: 'The User Champion', description: 'For always keeping the end user in mind' },
+            { category: 'Innovation & Impact Awards', name: 'The Risk Taker', description: 'For trying bold approaches that paid off' },
+            { category: 'Innovation & Impact Awards', name: 'The Finishing Touch', description: 'For those final improvements that made everything shine' }
+        ];
+
+        let selections = {};
+        let submitterName = '';
+        let submitted = false;
+
+        function groupAwards() {
+            const grouped = {};
+            awards.forEach(award => {
+                if (!grouped[award.category]) {
+                    grouped[award.category] = [];
+                }
+                grouped[award.category].push(award);
+            });
+            return grouped;
+        }
+
+        function handleSelection(awardName, memberName) {
+            selections[awardName] = memberName;
+            render();
+        }
+
+        function handleSubmit() {
+            if (!submitterName.trim()) {
+                alert('Please enter your name before submitting!');
+                return;
+            }
+
+            const results = {
+                submitter: submitterName,
+                timestamp: new Date().toISOString(),
+                selections: selections
+            };
+
+            const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `awards-${submitterName.replace(/\s+/g, '-')}-${Date.now()}.json`;
+            a.click();
+
+            submitted = true;
+            showConfetti();
+            render();
+        }
+
+        function showConfetti() {
+            const container = document.getElementById('confetti-container');
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'confetti';
+                star.innerHTML = '⭐';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.fontSize = '16px';
+                container.appendChild(star);
+                setTimeout(() => star.remove(), 1000);
+            }
+        }
+
+        function reset() {
+            submitted = false;
+            selections = {};
+            submitterName = '';
+            render();
+        }
+
+        function render() {
+            const app = document.getElementById('app');
+            const progress = Object.keys(selections).length;
+            const total = awards.length;
+            const progressPercent = (progress / total) * 100;
+
+            if (submitted) {
+                app.innerHTML = `
+                    <div class="min-h-screen flex items-center justify-center p-4">
+                        <div class="bg-white rounded-lg shadow-2xl p-12 text-center max-w-md relative overflow-hidden">
+                            <div id="confetti-container" class="absolute inset-0 pointer-events-none"></div>
+                            <div class="text-green-500 text-8xl mb-4">✓</div>
+                            <h2 class="text-3xl font-bold text-gray-800 mb-2">Thank You!</h2>
+                            <p class="text-gray-600 mb-4">Your awards selections have been submitted successfully.</p>
+                            <p class="text-sm text-gray-500">Results file has been downloaded to your computer.</p>
+                            <button onclick="reset()" class="mt-6 px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
+                                Submit Another Response
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const groupedAwards = groupAwards();
+            
+            app.innerHTML = `
+                <div class="bg-white shadow-md sticky top-0 z-10">
+                    <div class="max-w-4xl mx-auto px-4 py-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-orange-600 text-4xl">🏆</span>
+                            <div>
+                                <h1 class="text-3xl font-bold text-gray-800">Thomson Reuters Labs</h1>
+                                <p class="text-lg text-orange-600">Year End Awards Ceremony 2025</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
+                            <input type="text" id="submitter-name" value="${submitterName}" 
+                                placeholder="Enter your name"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                        </div>
+
+                        <div class="mb-2">
+                            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                <span>Progress: ${progress} of ${total} awards</span>
+                                <span>${Math.round(progressPercent)}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                                <div class="bg-gradient-to-r from-orange-500 to-orange-600 h-full transition-all duration-300" 
+                                    style="width: ${progressPercent}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="max-w-4xl mx-auto px-4 py-8">
+                    <div class="bg-blue-50 border-l-4 border-orange-600 p-4 mb-6 rounded">
+                        <p class="text-sm text-gray-700">
+                            <strong>Instructions:</strong> Select one team member for each award. You can give multiple awards to the same person. Have fun and celebrate your amazing team! 🎉
+                        </p>
+                    </div>
+
+                    ${Object.entries(groupedAwards).map(([category, categoryAwards]) => `
+                        <div class="mb-8">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="text-orange-600 text-2xl">🏅</span>
+                                <h2 class="text-2xl font-bold text-gray-800">${category}</h2>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                ${categoryAwards.map(award => `
+                                    <div class="bg-white rounded-lg shadow-md p-5 hover:shadow-lg transition-shadow">
+                                        <div class="flex items-start justify-between mb-3">
+                                            <div class="flex-1">
+                                                <h3 class="text-lg font-bold text-gray-800 mb-1">${award.name}</h3>
+                                                <p class="text-sm text-gray-600">${award.description}</p>
+                                            </div>
+                                            ${selections[award.name] ? '<span class="text-orange-500 text-2xl ml-2">⭐</span>' : ''}
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                            ${teamMembers.map(member => `
+                                                <button onclick="handleSelection('${award.name}', '${member}')"
+                                                    class="px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                                        selections[award.name] === member
+                                                            ? 'bg-orange-600 text-white shadow-md'
+                                                            : 'bg-gray-100 text-gray-700 hover:bg-orange-100 hover:text-orange-700'
+                                                    }">
+                                                    ${member}
+                                                </button>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+
+                    <div class="sticky bottom-4 bg-white rounded-lg shadow-2xl p-6 border-2 border-orange-500">
+                        <button onclick="handleSubmit()"
+                            ${progress === 0 || !submitterName.trim() ? 'disabled' : ''}
+                            class="w-full py-4 rounded-lg font-bold text-lg flex items-center justify-center gap-2 transition-all ${
+                                progress === 0 || !submitterName.trim()
+                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                    : 'bg-orange-600 text-white hover:bg-orange-700 shadow-lg hover:shadow-xl'
+                            }">
+                            📤 Submit Your Awards (${progress}/${total})
+                        </button>
+                        ${progress < total ? `
+                            <p class="text-center text-sm text-gray-500 mt-2">
+                                You can submit with partial selections, but we encourage you to complete all awards!
+                            </p>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            const nameInput = document.getElementById('submitter-name');
+            if (nameInput) {
+                nameInput.addEventListener('input', (e) => {
+                    submitterName = e.target.value;
+                    render();
+                });
+            }
+        }
+
+        render();
+    </script>
+</body>
+</html>
