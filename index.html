@@ -197,9 +197,16 @@
 
                 <div class="max-w-4xl mx-auto px-4 py-8">
                     <div class="bg-blue-50 border-l-4 border-orange-600 p-4 mb-6 rounded">
-                        <p class="text-sm text-gray-700">
-                            <strong>Instructions:</strong> Select one team member for each award. You can give multiple awards to the same person. Have fun and celebrate your amazing team! 🎉
+                        <p class="text-sm text-gray-700 mb-2">
+                            <strong>Instructions:</strong>
                         </p>
+                        <ul class="text-sm text-gray-700 space-y-1 ml-4">
+                            <li>• Award team members with whom you've worked closely</li>
+                            <li>• You don't need to assign every award - leave blank those that don't apply</li>
+                            <li>• You can give multiple awards to the same person</li>
+                            <li>• Don't feel pressured to give everyone an award - be genuine!</li>
+                            <li>• Have fun and celebrate your amazing colleagues! 🎉</li>
+                        </ul>
                     </div>
 
                     ${Object.entries(groupedAwards).map(([category, categoryAwards]) => `
@@ -249,7 +256,7 @@
                         </button>
                         ${progress < total ? `
                             <p class="text-center text-sm text-gray-500 mt-2">
-                                You can submit with partial selections, but we encourage you to complete all awards!
+                                You can submit with any number of awards - it's okay to leave some blank!
                             </p>
                         ` : ''}
                     </div>
