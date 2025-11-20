@@ -36,10 +36,10 @@
             { category: 'Communication Style Awards', name: 'The GIF Master', description: 'For always having the perfect GIF response' },
             { category: 'Communication Style Awards', name: 'The Eloquent Rambler', description: 'For the longest, most detailed Teams messages' },
             { category: 'Communication Style Awards', name: 'The One-Word Wonder', description: 'For conveying everything with minimal words ("Yep." "Done." "Nice.")' },
-            { category: 'Meeting Personality Awards', name: 'The Background Celebrity', description: 'For the most interesting Teams background (pets, kids, décor)' },
+            { category: 'Meeting Personality Awards', name: 'The Background Celebrity', description: 'For the most interesting Zoom background (pets, kids, décor)' },
             { category: 'Meeting Personality Awards', name: 'The Multitasker', description: 'For somehow attending three meetings at once' },
             { category: 'Meeting Personality Awards', name: 'The Coffee Curator', description: 'For the most impressive mug collection on camera' },
-            { category: 'Work Style Quirks Awards', name: 'The Night Owl', description: 'For Teams messages sent at mysterious hours' },
+            { category: 'Work Style Quirks Awards', name: 'The Night Owl', description: 'For Slack messages sent at mysterious hours' },
             { category: 'Work Style Quirks Awards', name: 'The Calendar Tetris Champion', description: 'For the most colorful/packed calendar' },
             { category: 'Personality & Humor Awards', name: 'The Pet Director', description: 'For pets that steal the show during calls' },
             { category: 'Personality & Humor Awards', name: 'The Meme Lord/Lady', description: 'For sharing the most relevant internet humor' },
@@ -198,7 +198,7 @@
                 <div class="max-w-4xl mx-auto px-4 py-8">
                     <div class="bg-blue-50 border-l-4 border-orange-600 p-4 mb-6 rounded">
                         <p class="text-sm text-gray-700">
-                            <strong>Instructions:</strong> Select a team member for an award that fits them best. You can give multiple awards to the same person or leave an award without giving it to anyone. Give awards to those you have worked with. Have fun and celebrate our amazing team! 🎉
+                            <strong>Instructions:</strong> Select one team member for each award. You can give multiple awards to the same person. Have fun and celebrate your amazing team! 🎉
                         </p>
                     </div>
 
@@ -238,7 +238,7 @@
                     `).join('')}
 
                     <div class="sticky bottom-4 bg-white rounded-lg shadow-2xl p-6 border-2 border-orange-500">
-                        <button onclick="handleSubmit()"
+                        <button id="submit-btn" onclick="handleSubmit()"
                             ${progress === 0 || !submitterName.trim() ? 'disabled' : ''}
                             class="w-full py-4 rounded-lg font-bold text-lg flex items-center justify-center gap-2 transition-all ${
                                 progress === 0 || !submitterName.trim()
@@ -260,7 +260,8 @@
             if (nameInput) {
                 nameInput.addEventListener('input', (e) => {
                     submitterName = e.target.value;
-                    render();
+                    // Don't re-render the whole page, just update the submit button state
+                    updateSubmitButton();
                 });
             }
 
@@ -272,6 +273,23 @@
                     handleSelection(awardName, memberName);
                 });
             });
+        }
+
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submit-btn');
+            const progress = Object.keys(selections).length;
+            const total = awards.length;
+            
+            if (submitBtn) {
+                const canSubmit = progress > 0 && submitterName.trim();
+                submitBtn.disabled = !canSubmit;
+                submitBtn.className = `w-full py-4 rounded-lg font-bold text-lg flex items-center justify-center gap-2 transition-all ${
+                    !canSubmit
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-orange-600 text-white hover:bg-orange-700 shadow-lg hover:shadow-xl'
+                }`;
+                submitBtn.innerHTML = `📤 Submit Your Awards (${progress}/${total})`;
+            }
         }
 
         render();
