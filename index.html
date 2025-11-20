@@ -222,12 +222,11 @@
                                         
                                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                             ${teamMembers.map(member => `
-                                                <button onclick="handleSelection('${award.name}', '${member}')"
-                                                    class="px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                                <button class="member-btn px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                                                         selections[award.name] === member
                                                             ? 'bg-orange-600 text-white shadow-md'
                                                             : 'bg-gray-100 text-gray-700 hover:bg-orange-100 hover:text-orange-700'
-                                                    }">
+                                                    }" data-award="${btoa(award.name)}" data-member="${member}">
                                                     ${member}
                                                 </button>
                                             `).join('')}
@@ -264,6 +263,15 @@
                     render();
                 });
             }
+
+            // Add click handlers for member buttons
+            document.querySelectorAll('.member-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const awardName = atob(btn.dataset.award);
+                    const memberName = btn.dataset.member;
+                    handleSelection(awardName, memberName);
+                });
+            });
         }
 
         render();
