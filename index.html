@@ -74,6 +74,7 @@
         ];
 
         let selections = {};
+        let reasons = {};
         let submitterName = '';
         let submitted = false;
 
@@ -90,7 +91,15 @@
 
         function handleSelection(awardName, memberName) {
             selections[awardName] = memberName;
+            // Initialize reason if not exists
+            if (!reasons[awardName]) {
+                reasons[awardName] = '';
+            }
             render();
+        }
+
+        function handleReasonChange(awardName, reason) {
+            reasons[awardName] = reason;
         }
 
         function handleSubmit() {
@@ -102,7 +111,8 @@
             const results = {
                 submitter: submitterName,
                 timestamp: new Date().toISOString(),
-                selections: selections
+                selections: selections,
+                reasons: reasons
             };
 
             const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
@@ -134,6 +144,7 @@
         function reset() {
             submitted = false;
             selections = {};
+            reasons = {};
             submitterName = '';
             render();
         }
@@ -238,6 +249,20 @@
                                                 </button>
                                             `).join('')}
                                         </div>
+                                        
+                                        ${selections[award.name] ? `
+                                            <div class="mt-3">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                    Why ${selections[award.name]}? (Optional)
+                                                </label>
+                                                <textarea 
+                                                    class="reason-input w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                                                    rows="2"
+                                                    placeholder="Share a specific example or reason for this nomination..."
+                                                    data-award="${btoa(award.name)}"
+                                                >${reasons[award.name] || ''}</textarea>
+                                            </div>
+                                        ` : ''}
                                     </div>
                                 `).join('')}
                             </div>
@@ -278,6 +303,14 @@
                     const awardName = atob(btn.dataset.award);
                     const memberName = btn.dataset.member;
                     handleSelection(awardName, memberName);
+                });
+            });
+
+            // Add input handlers for reason text areas
+            document.querySelectorAll('.reason-input').forEach(textarea => {
+                textarea.addEventListener('input', (e) => {
+                    const awardName = atob(e.target.dataset.award);
+                    handleReasonChange(awardName, e.target.value);
                 });
             });
         }
