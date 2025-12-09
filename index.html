@@ -75,6 +75,8 @@
 
         let selections = {};
         let reasons = {};
+        let customAwardNames = {};
+        let customAwards = [];
         let submitterName = '';
         let submitted = false;
 
@@ -91,7 +93,6 @@
 
         function handleSelection(awardName, memberName) {
             selections[awardName] = memberName;
-            // Initialize reason if not exists
             if (!reasons[awardName]) {
                 reasons[awardName] = '';
             }
@@ -100,6 +101,24 @@
 
         function handleReasonChange(awardName, reason) {
             reasons[awardName] = reason;
+        }
+
+        function handleCustomAwardNameChange(customId, name) {
+            customAwardNames[customId] = name;
+        }
+
+        function addCustomAward() {
+            const customId = `custom_${Date.now()}`;
+            customAwards.push(customId);
+            render();
+        }
+
+        function removeCustomAward(customId) {
+            customAwards = customAwards.filter(id => id !== customId);
+            delete selections[customId];
+            delete reasons[customId];
+            delete customAwardNames[customId];
+            render();
         }
 
         function handleSubmit() {
@@ -112,7 +131,8 @@
                 submitter: submitterName,
                 timestamp: new Date().toISOString(),
                 selections: selections,
-                reasons: reasons
+                reasons: reasons,
+                customAwardNames: customAwardNames
             };
 
             const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
@@ -145,6 +165,8 @@
             submitted = false;
             selections = {};
             reasons = {};
+            customAwardNames = {};
+            customAwards = [];
             submitterName = '';
             render();
         }
@@ -269,6 +291,73 @@
                         </div>
                     `).join('')}
 
+                    ${customAwards.length > 0 ? `
+                        <div class="mb-8">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="text-orange-600 text-2xl">✨</span>
+                                <h2 class="text-2xl font-bold text-gray-800">Your Custom Awards</h2>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                ${customAwards.map(customId => `
+                                    <div class="bg-white rounded-lg shadow-md p-5 hover:shadow-lg transition-shadow border-2 border-orange-200">
+                                        <div class="flex items-start justify-between mb-3">
+                                            <div class="flex-1">
+                                                <input 
+                                                    type="text"
+                                                    class="custom-award-name w-full px-3 py-2 border-2 border-orange-300 rounded-lg text-lg font-bold focus:ring-2 focus:ring-orange-500 focus:border-transparent mb-2"
+                                                    placeholder="Enter your custom award name..."
+                                                    data-custom-id="${customId}"
+                                                    value="${customAwardNames[customId] || ''}"
+                                                />
+                                            </div>
+                                            ${selections[customId] ? '<span class="text-orange-500 text-2xl ml-2">⭐</span>' : ''}
+                                            <button class="remove-custom-btn ml-2 text-red-500 hover:text-red-700 font-bold" data-custom-id="${customId}">
+                                                ✕
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
+                                            ${teamMembers.map(member => `
+                                                <button class="member-btn px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                                        selections[customId] === member
+                                                            ? 'bg-orange-600 text-white shadow-md'
+                                                            : 'bg-gray-100 text-gray-700 hover:bg-orange-100 hover:text-orange-700'
+                                                    }" data-award="${btoa(customId)}" data-member="${member}">
+                                                    ${member}
+                                                </button>
+                                            `).join('')}
+                                        </div>
+                                        
+                                        ${selections[customId] ? `
+                                            <div class="mt-3">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                    Why ${selections[customId]}? (Optional)
+                                                </label>
+                                                <textarea 
+                                                    class="reason-input w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                                                    rows="2"
+                                                    placeholder="Share a specific example or reason for this nomination..."
+                                                    data-award="${btoa(customId)}"
+                                                >${reasons[customId] || ''}</textarea>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <div class="mb-8">
+                        <button id="add-custom-btn" class="w-full py-4 px-6 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg font-bold text-lg hover:from-orange-600 hover:to-orange-700 shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                            <span class="text-2xl">+</span>
+                            Create Your Own Award
+                        </button>
+                        <p class="text-center text-sm text-gray-500 mt-2">
+                            Can't find the perfect award? Create a custom one!
+                        </p>
+                    </div>
+
                     <div class="sticky bottom-4 bg-white rounded-lg shadow-2xl p-6 border-2 border-orange-500">
                         <button id="submit-btn" onclick="handleSubmit()"
                             ${progress === 0 || !submitterName.trim() ? 'disabled' : ''}
@@ -292,12 +381,10 @@
             if (nameInput) {
                 nameInput.addEventListener('input', (e) => {
                     submitterName = e.target.value;
-                    // Don't re-render the whole page, just update the submit button state
                     updateSubmitButton();
                 });
             }
 
-            // Add click handlers for member buttons
             document.querySelectorAll('.member-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const awardName = atob(btn.dataset.award);
@@ -306,13 +393,31 @@
                 });
             });
 
-            // Add input handlers for reason text areas
             document.querySelectorAll('.reason-input').forEach(textarea => {
                 textarea.addEventListener('input', (e) => {
                     const awardName = atob(e.target.dataset.award);
                     handleReasonChange(awardName, e.target.value);
                 });
             });
+
+            document.querySelectorAll('.custom-award-name').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const customId = e.target.dataset.customId;
+                    handleCustomAwardNameChange(customId, e.target.value);
+                });
+            });
+
+            document.querySelectorAll('.remove-custom-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const customId = btn.dataset.customId;
+                    removeCustomAward(customId);
+                });
+            });
+
+            const addCustomBtn = document.getElementById('add-custom-btn');
+            if (addCustomBtn) {
+                addCustomBtn.addEventListener('click', addCustomAward);
+            }
         }
 
         function updateSubmitButton() {
